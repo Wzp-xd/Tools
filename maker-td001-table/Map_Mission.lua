@@ -11,6 +11,8 @@ local Data = {
     ID = "关卡1-1",
     PointEnemy = {
         [1] = {1, 3},
+        [2] = {1, 2},
+        [3] = {1, 4},
     },
     PointPlayer = {
         [1] = {6, 3},

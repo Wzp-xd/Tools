@@ -2,8 +2,7 @@
 setlocal EnableExtensions EnableDelayedExpansion
 
 REM ===== Git commit helper =====
-REM Usage 1: double-click and type message
-REM Usage 2: commit_git.bat "your message"
+REM Default commit message: current datetime (yyyy-MM-dd HH:mm:ss)
 
 where git >nul 2>nul
 if errorlevel 1 (
@@ -12,18 +11,14 @@ if errorlevel 1 (
   exit /b 1
 )
 
-if "%~1"=="" (
-  set /p MSG=Enter commit message: 
-) else (
-  set MSG=%~1
-)
-
+for /f "delims=" %%t in ('powershell -NoProfile -Command "Get-Date -Format \"yyyy-MM-dd HH:mm:ss\""') do set "MSG=%%t"
 if "!MSG!"=="" (
-  echo [ERROR] Commit message is empty.
+  echo [ERROR] Failed to get current datetime.
   pause
   exit /b 1
 )
 
+echo [INFO] Commit message: !MSG!
 echo.
 echo [1/4] git add -A
 git add -A

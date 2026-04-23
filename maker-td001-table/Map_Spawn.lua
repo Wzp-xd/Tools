@@ -1,5 +1,5 @@
 -- ============================================
--- 瀛楁澶囨敞:
+-- Field Comments:
 --   Count: 数量
 --   ID: ID
 --   PointCreate: 在指定点创建
@@ -18,8 +18,8 @@ local Data = {
 		ID = 1,
 		PointEnemy = 1,
 		PointTarget = 1,
-		TimePulse = 2,
-		TimeStart = 0,
+		TimePulse = 3,
+		TimeStart = 10,
 		UnitID = "怪物1",
 	},
 	{
@@ -28,8 +28,8 @@ local Data = {
 		ID = 2,
 		PointEnemy = 2,
 		PointTarget = 1,
-		TimePulse = 0.1,
-		TimeStart = 6,
+		TimePulse = 1,
+		TimeStart = 20,
 		UnitID = "怪物2",
 	},
 	{
@@ -38,7 +38,7 @@ local Data = {
 		ID = 3,
 		PointCreate = {2, 4},
 		PointTarget = 1,
-		TimeStart = 15,
+		TimeStart = 25,
 		UnitID = "怪物3",
 	},
 },

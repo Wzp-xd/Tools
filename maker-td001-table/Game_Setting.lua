@@ -6,5 +6,7 @@
 
 local Data = {
 BaseSpeed = 1,
+CellLen = 1,
+TowerDistance = 0.3,
 }
 return Data

@@ -10,35 +10,65 @@
 -- ============================================
 
 local Data = {
-['塔1'] = {
+['劫掠者'] = {
     DeployType = "1",
-    ID = "塔1",
-    Name = "塔1",
-    SlotCost = 1,
+    ID = "劫掠者",
+    Name = "劫掠者",
+    SlotCost = 2,
 },
-['塔2'] = {
+['医疗兵'] = {
     DeployType = "1",
-    ID = "塔2",
-    Name = "塔2",
+    ID = "医疗兵",
+    Name = "医疗兵",
+    SlotCost = 2,
+},
+['坦克'] = {
+    DeployType = "1",
+    ID = "坦克",
+    Name = "坦克",
+    SlotCost = 3,
+},
+['大和'] = {
+    DeployType = "1",
+    ID = "大和",
+    Name = "大和",
+    SlotCost = 6,
+},
+['女妖'] = {
+    DeployType = "1",
+    ID = "女妖",
+    Name = "女妖",
+    SlotCost = 3,
+},
+['机枪兵'] = {
+    DeployType = "1",
+    ID = "机枪兵",
+    Name = "机枪兵",
     SlotCost = 1,
 },
-['塔3'] = {
-    DeployType = "2",
-    ID = "塔3",
-    Name = "塔3",
-    SlotCost = 1,
+['歌利亚'] = {
+    DeployType = "1",
+    ID = "歌利亚",
+    Name = "歌利亚",
+    SlotCost = 3,
 },
-['塔4'] = {
-    DeployType = "2",
-    ID = "塔4",
-    Name = "塔4",
-    SlotCost = 1,
+['火蝠'] = {
+    DeployType = "1",
+    ID = "火蝠",
+    Name = "火蝠",
+    SlotCost = 2,
 },
-['塔5'] = {
-    DeployType = "0",
-    ID = "塔5",
-    Name = "塔5",
-    SlotCost = 1,
+['维京'] = {
+    DeployType = "1",
+    ID = "维京",
+    Name = "维京",
+    SlotCost = 3,
+},
+['雷神'] = {
+    DeployType = "1",
+    ID = "雷神",
+    Name = "雷神",
+    SlotCost = 4,
 },
 }
 return Data

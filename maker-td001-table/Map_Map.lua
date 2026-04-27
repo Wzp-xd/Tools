@@ -6,7 +6,7 @@
 
 local Data = {
 ['地图1'] = {
-    CostStart = {100},
+    CostStart = {1000, 500},
     ID = "地图1",
     MissionID = {
         [1] = "关卡1-1",

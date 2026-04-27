@@ -16,7 +16,7 @@ local Data = {
 		},
 		ID = 2,
 		Level = 1,
-		UnitID = "2",
+		UnitID = "劫掠者",
 	},
 },
 ['医疗兵'] = {
@@ -28,7 +28,7 @@ local Data = {
 		},
 		ID = 4,
 		Level = 1,
-		UnitID = "4",
+		UnitID = "医疗兵",
 	},
 },
 ['坦克'] = {
@@ -40,7 +40,7 @@ local Data = {
 		},
 		ID = 6,
 		Level = 1,
-		UnitID = "6",
+		UnitID = "坦克",
 	},
 },
 ['大和'] = {
@@ -52,7 +52,7 @@ local Data = {
 		},
 		ID = 10,
 		Level = 1,
-		UnitID = "10",
+		UnitID = "大和",
 	},
 },
 ['女妖'] = {
@@ -64,7 +64,7 @@ local Data = {
 		},
 		ID = 8,
 		Level = 1,
-		UnitID = "8",
+		UnitID = "女妖",
 	},
 },
 ['机枪兵'] = {
@@ -75,7 +75,7 @@ local Data = {
 		},
 		ID = 1,
 		Level = 1,
-		UnitID = "1",
+		UnitID = "机枪兵",
 	},
 },
 ['歌利亚'] = {
@@ -87,7 +87,7 @@ local Data = {
 		},
 		ID = 5,
 		Level = 1,
-		UnitID = "5",
+		UnitID = "歌利亚",
 	},
 },
 ['火蝠'] = {
@@ -99,7 +99,7 @@ local Data = {
 		},
 		ID = 3,
 		Level = 1,
-		UnitID = "3",
+		UnitID = "火蝠",
 	},
 },
 ['维京'] = {
@@ -111,7 +111,7 @@ local Data = {
 		},
 		ID = 9,
 		Level = 1,
-		UnitID = "9",
+		UnitID = "维京",
 	},
 },
 ['雷神'] = {
@@ -123,7 +123,7 @@ local Data = {
 		},
 		ID = 7,
 		Level = 1,
-		UnitID = "7",
+		UnitID = "雷神",
 	},
 },
 }

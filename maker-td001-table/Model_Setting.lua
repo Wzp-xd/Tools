@@ -11,6 +11,11 @@ local Data = {
     Key = "tower_marauder",
     Scale = 1,
 },
+['哥布林1'] = {
+    ID = "哥布林1",
+    Key = "enemy_goblin_recruit",
+    Scale = 1,
+},
 ['机枪兵'] = {
     ID = "机枪兵",
     Key = "tower_marine",

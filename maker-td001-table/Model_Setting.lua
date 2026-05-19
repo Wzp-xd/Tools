@@ -14,8 +14,8 @@ local Data = {
 },
 ['医疗兵'] = {
     ID = "医疗兵",
-    Scale = 0.2,
-    Sprite = [[image/tower_firebat_20260519024241.png]],
+    Scale = 0.3,
+    Sprite = [[image/tower_medic_20260519024242.png]],
 },
 ['哥布林1'] = {
     ID = "哥布林1",
@@ -95,8 +95,8 @@ local Data = {
 },
 ['坦克'] = {
     ID = "坦克",
-    Scale = 0.3,
-    Sprite = [[image/tower_goliath_20260519024240.png]],
+    Scale = 0.25,
+    Sprite = [[image/tower_tank_20260519024239.png]],
 },
 ['大和'] = {
     ID = "大和",
@@ -105,8 +105,8 @@ local Data = {
 },
 ['女妖'] = {
     ID = "女妖",
-    Scale = 0.3,
-    Sprite = [[image/tower_viking_20260519024243.png]],
+    Scale = 0.4,
+    Sprite = [[image/tower_banshee_20260519024241.png]],
 },
 ['机枪兵'] = {
     ID = "机枪兵",
@@ -118,22 +118,22 @@ local Data = {
 ['歌利亚'] = {
     ID = "歌利亚",
     Scale = 0.3,
-    Sprite = [[image/tower_medic_20260519024242.png]],
+    Sprite = [[image/tower_goliath_20260519024240.png]],
 },
 ['火蝠'] = {
     ID = "火蝠",
-    Scale = 0.25,
-    Sprite = [[image/tower_tank_20260519024239.png]],
+    Scale = 0.2,
+    Sprite = [[image/tower_firebat_20260519024241.png]],
 },
 ['维京'] = {
     ID = "维京",
     Scale = 0.3,
-    Sprite = [[image/tower_thor_20260519024345.png]],
+    Sprite = [[image/tower_viking_20260519024243.png]],
 },
 ['雷神'] = {
     ID = "雷神",
-    Scale = 0.4,
-    Sprite = [[image/tower_banshee_20260519024241.png]],
+    Scale = 0.3,
+    Sprite = [[image/tower_thor_20260519024345.png]],
 },
 }
 return Data

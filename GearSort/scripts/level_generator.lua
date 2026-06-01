@@ -184,8 +184,9 @@ function LevelGenerator.Generate(cfg)
     -- 锁定插板下标集合
     local lockedSet = {}
 
+    -- 阶段 1：先选出所有锁定插板的解锁色（确保填充时能排除全部解锁色）
+    local unlockColorList = {}
     for _ = 1, lockedGroups do
-        -- 选解锁色：从未被用作解锁色的颜色中随机选
         local availUnlock = {}
         for i = 1, colorCount do
             if not usedUnlockColors[COLOR_NAMES[i]] then
@@ -195,13 +196,18 @@ function LevelGenerator.Generate(cfg)
         assert(#availUnlock > 0, "颜色不足以分配解锁色")
         local unlockColor = availUnlock[rng:int(1, #availUnlock)]
         usedUnlockColors[unlockColor] = true
+        unlockColorList[#unlockColorList + 1] = unlockColor
+    end
 
-        -- 填充锁定插板的 CAPACITY 个槽
-        -- 可用颜色：所有颜色中排除解锁色，且仍有剩余齿轮
+    -- 阶段 2：依次填充每个锁定插板，排除所有解锁色（防止解锁色齿轮出现在任何锁定插板中）
+    for li = 1, lockedGroups do
+        local unlockColor = unlockColorList[li]
+
+        -- 可用颜色：排除所有解锁色（不仅是自己的），且仍有剩余齿轮
         local fillColors = {}
         for i = 1, colorCount do
             local c = COLOR_NAMES[i]
-            if c ~= unlockColor and pool[c] > 0 then
+            if not usedUnlockColors[c] and pool[c] > 0 then
                 fillColors[#fillColors + 1] = c
             end
         end
@@ -228,11 +234,11 @@ function LevelGenerator.Generate(cfg)
             if c ~= firstColor then allSame = false; break end
         end
         if allSame then
-            -- 找一个不同于 firstColor 的可用颜色（排除解锁色）
+            -- 找一个不同于 firstColor 的可用颜色（排除所有解锁色）
             local alt = nil
             for i = 1, colorCount do
                 local c = COLOR_NAMES[i]
-                if c ~= firstColor and c ~= unlockColor and pool[c] > 0 then
+                if c ~= firstColor and not usedUnlockColors[c] and pool[c] > 0 then
                     alt = c
                     break
                 end
@@ -252,8 +258,8 @@ function LevelGenerator.Generate(cfg)
         locks[pegIdx] = unlockColor
         lockedSet[pegIdx] = true
 
-        print(string.format("[LevelGenerator] 锁定插板 #%d 解锁色=%s，内容=[%s]",
-            pegIdx, unlockColor, table.concat(peg, ",")))
+        --print(string.format("[LevelGenerator] 锁定插板 #%d 解锁色=%s，内容=[%s]",
+        --    pegIdx, unlockColor, table.concat(peg, ",")))
     end
 
     -- ===============================================================
@@ -353,12 +359,12 @@ function LevelGenerator.Generate(cfg)
             end
         end
         if #completedList == 0 then
-            print(string.format("[LevelGenerator] 第 %d 轮检查：无已完成插板，结束", breakLoop))
+            --print(string.format("[LevelGenerator] 第 %d 轮检查：无已完成插板，结束", breakLoop))
             break
         end
 
-        print(string.format("[LevelGenerator] 第 %d 轮检查：发现 %d 个已完成插板，强制破开",
-            breakLoop, #completedList))
+        --[[print(string.format("[LevelGenerator] 第 %d 轮检查：发现 %d 个已完成插板，强制破开",
+            breakLoop, #completedList))]]
 
         -- 对每个已完成插板，将顶部齿轮与另一个随机非锁定插板的随机槽对调
         for _, pi in ipairs(completedList) do
@@ -380,7 +386,7 @@ function LevelGenerator.Generate(cfg)
 
         -- 若已达上限，打印警告
         if breakLoop == maxBreakLoop then
-            print("[LevelGenerator] WARNING: 达到最大破开轮数 100，可能仍有已完成插板")
+            --print("[LevelGenerator] WARNING: 达到最大破开轮数 100，可能仍有已完成插板")
         end
     end
 
@@ -420,8 +426,8 @@ function LevelGenerator.Generate(cfg)
     -- ===============================================================
     -- 输出结果
     -- ===============================================================
-    print(string.format("[LevelGenerator] 生成完成：%d色 %d空 %d锁定 %d隐藏 %d只进不出",
-        colorCount, emptyPegs, lockedGroups, hiddenGears, sinkCount))
+    --[[print(string.format("[LevelGenerator] 生成完成：%d色 %d空 %d锁定 %d隐藏 %d只进不出",
+        colorCount, emptyPegs, lockedGroups, hiddenGears, sinkCount))]]
 
     -- 调试：打印每根插板内容
     for pi, peg in ipairs(pegs) do
@@ -431,8 +437,8 @@ function LevelGenerator.Generate(cfg)
         elseif #peg == 0 then
             label = "(空)"
         end
-        print(string.format("  插板 #%d %s: [%s]%s", pi, label, table.concat(peg, ","),
-            isPegCompleted(peg) and " ★完成" or ""))
+        --[[print(string.format("  插板 #%d %s: [%s]%s", pi, label, table.concat(peg, ","),
+            isPegCompleted(peg) and " ★完成" or ""))]]
     end
 
     return {

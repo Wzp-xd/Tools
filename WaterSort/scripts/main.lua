@@ -47,17 +47,15 @@ local function handleTubeTap(tubeIdx)
     else
         local srcIdx = game.selectedTube
         if game:canPour(srcIdx, tubeIdx) then
-            -- 开始倾倒动画
+            -- 开始倾倒动画（数据不立即移动，动画结束后才提交）
             local pourCount = game:getPourCount(srcIdx, tubeIdx)
             local pourColor = game:getTopColor(srcIdx)
             local srcSnapshot = game:getTubeSnapshot(srcIdx)
-            -- 先保存 undo，再修改数据
             game:saveUndoState()
-            -- 从源管移除顶层（动画期间源管数据已改变）
+            -- 从源管移除顶层（动画期间源管显示用 srcSnapshot）
             local src = game.tubes[srcIdx]
-            local dst = game.tubes[tubeIdx]
             for _ = 1, pourCount do
-                table.insert(dst, table.remove(src))
+                table.remove(src)
             end
             game.selectedTube = nil
             game.isAnimating = true
@@ -273,7 +271,7 @@ function GameCanvas:drawAnimSource(nvg, layout, positions)
         local tipY = curCY - halfH
         local startX, startY = Renderer.rotatePoint(tipX, tipY, pivotWX, pivotWY, curAngle)
         local dstTube = game.tubes[pour.dstIdx]
-        local fillTotal = #dstTube
+        local fillTotal = #dstTube + pour.pouredSoFar  -- 包含正在倒入的量
         Renderer.drawWaterStream(nvg, startX, startY, dstCX, dstCY, fillTotal, pour.pourColor)
     end
 end
@@ -395,8 +393,13 @@ function HandleUpdate(eventType, eventData)
 
     local pourFinished = anim:update(dt, game.selectedTube, game.tubeCount)
 
-    -- 倾倒动画完成后检查胜利
+    -- 倾倒动画完成后：提交数据到目标管，检查胜利
     if pourFinished then
+        local pour = anim.pour
+        local dst = game.tubes[pour.dstIdx]
+        for _ = 1, pour.pourLayers do
+            table.insert(dst, pour.pourColor)
+        end
         game.isAnimating = false
         if game:checkWin() then
             game.isWin = true

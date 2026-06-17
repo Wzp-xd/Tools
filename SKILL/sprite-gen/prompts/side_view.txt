@@ -1,0 +1,6 @@
+Redraw this exact same character in a {VIEW_ANGLE}.
+{ART_STYLE}
+Preserve all colors, clothing, accessories, hairstyle, and proportions exactly.
+Do not change, simplify, or add any design elements.
+Character faces right, arms relaxed, mouth closed, neutral expression.
+Pure solid {KEY_COLOR} background, no shadow, no ground line.

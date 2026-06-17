@@ -1,0 +1,8 @@
+The character stands completely still, then {动作描述},
+then immediately returns to completely still standing for the rest of the time.
+Brief single burst of motion. Character is mostly still throughout.
+2D game sprite animation, exaggerated cartoon style, snappy and punchy motion,
+strict side-view profile facing right, character always faces right, no turning.
+Mouth closed, neutral expression.
+Static camera, character centered, seamless loop, pure {KEY_COLOR} background.
+

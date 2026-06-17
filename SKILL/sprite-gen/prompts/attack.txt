@@ -1,0 +1,9 @@
+The character stands completely still, then in one explosive instant
+{动作描述},
+the strike happens in a split-second flash then the character slowly settles
+back to completely still standing for the rest of the time.
+Lightning-fast attack, extremely brief windup, instant strike, slow recovery.
+2D game sprite animation, exaggerated cartoon style, snappy and punchy motion,
+strict side-view profile facing right, character always faces right, no turning.
+Mouth closed, neutral expression.
+Static camera, character centered, seamless loop, pure {KEY_COLOR} background.

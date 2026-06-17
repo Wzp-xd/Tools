@@ -1,0 +1,18 @@
+{
+  "work_dir": ".build/sprite-gen",
+  "output_dir": "assets/sprites",
+  "target_height": 256,
+  "fps": 24,
+  "frame_mode": "F",
+  "max_sheet_size": 2048,
+  "video_duration": "5",
+  "video_prompt_strength": 0.7,
+  "prompt_merge_negative": true,
+  "ready_layout": {"char_ratio": 0.6, "margin_top": 0.3, "margin_bottom": 0.1, "margin_left": 0.2, "margin_right": 0.2},
+  "chroma_strength": 1.5,
+  "chroma_edge_shrink": 1,
+  "detect_min_cycle_frames": 10,
+  "detect_padding_frames": 3,
+  "preview_format": "webp",
+  "fal_proxy": ""
+}

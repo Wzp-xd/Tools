@@ -1,0 +1,7 @@
+Looping animation, start the motion immediately with no intro or transition.
+{动作描述}
+The motion repeats in a rhythmic periodic cycle, at least 2-3 full cycles throughout the entire video.
+2D game sprite animation, exaggerated cartoon style, snappy and punchy motion,
+strict side-view profile facing right, character always faces right, no turning.
+Mouth closed, neutral expression.
+Static camera, character centered, seamless loop, pure {KEY_COLOR} background.

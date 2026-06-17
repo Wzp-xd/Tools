@@ -1,0 +1,7 @@
+3D rotation, turning, perspective change, camera movement, angle change,
+front view, back view, top view, three-quarter view,
+character turning around, face rotation, blur, distort, low quality,
+shadow, drop shadow, ground shadow, cast shadow,
+realistic, subtle, gentle, minimal movement, slow motion,
+talking, mouth moving, speaking, lip sync,
+large visual effects, full-screen effects, environment effects

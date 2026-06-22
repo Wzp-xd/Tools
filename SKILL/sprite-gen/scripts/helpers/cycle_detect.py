@@ -370,7 +370,7 @@ def generate_action_candidate_gifs(frame_paths, grays, out_dir,
         gif_path = os.path.join(out_dir, gif_name)
         frames_pil[0].save(
             gif_path, save_all=True, append_images=frames_pil[1:],
-            duration=int(1000 / fps), loop=0, disposal=2,
+            duration=int(1000 / max(1, fps)), loop=0, disposal=2,
         )
         c = {
             "start": start, "end": end, "n_frames": n_frames,
@@ -515,7 +515,7 @@ def isolate_action_and_export_gif(frame_paths, grays, out_dir,
     gif_path = os.path.join(out_dir, gif_name)
     frames_pil[0].save(
         gif_path, save_all=True, append_images=frames_pil[1:],
-        duration=int(1000 / fps), loop=0, disposal=2,
+        duration=int(1000 / max(1, fps)), loop=0, disposal=2,
     )
     result["gif_path"] = gif_path
     print(f"  ★ peak isolation (Otsu): {n} frames ({dur_sec:.1f}s) "
@@ -544,7 +544,7 @@ def isolate_action_and_export_gif(frame_paths, grays, out_dir,
     tight_gif = os.path.join(out_dir, f"action_{tn}f_tight.gif")
     tight_pil[0].save(
         tight_gif, save_all=True, append_images=tight_pil[1:],
-        duration=int(1000 / fps), loop=0, disposal=2,
+        duration=int(1000 / max(1, fps)), loop=0, disposal=2,
     )
     tight = {"start": tl, "end": tr, "n_frames": tn, "gif_path": tight_gif}
     print(f"    fallback tight (dev 60%): {tn} frames ({tn/fps:.1f}s) "
@@ -710,7 +710,7 @@ def generate_candidate_gifs(frame_paths, candidates, out_dir, fps=24):
             gif_path,
             save_all=True,
             append_images=frames_pil[1:],
-            duration=int(1000 / fps),
+            duration=int(1000 / max(1, fps)),
             loop=0,
             disposal=2,
         )

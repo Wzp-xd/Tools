@@ -1,0 +1,5 @@
+Redraw this exact same character {POSE_HINT}.
+{ART_STYLE}.
+Preserve all colors, clothing, accessories, hairstyle, and proportions exactly.
+Character faces right, mouth closed, neutral expression.
+Pure solid {KEY_COLOR} background, no shadow, no ground line.

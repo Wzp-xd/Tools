@@ -2,7 +2,7 @@
 """
 build_pose_prompt — 检测姿态缺口 + 构建姿态参考图提示词
 
-输入: 角色目录(含 _meta.json) + _user_anims.json
+输入: {work_dir}/{精灵名}(含 _meta.json) + _user_anims.json
 做了:
   1. 扫描 _user_anims.json,按 group(aerial/ground)分类
   2. 判断 ready.png 当前姿态(由用户在 _meta.json 中标注,或默认 ground)
@@ -10,7 +10,7 @@ build_pose_prompt — 检测姿态缺口 + 构建姿态参考图提示词
   4. 对每个缺口构建提示词(角色描述 + 目标姿态 + 幕布色)
 
 输出:
-  {角色目录}/_gen_images/{姿态}.prompt.txt — 每个缺失姿态一条 prompt
+  {work_dir}/{精灵名}/_gen_images/{姿态}.prompt.txt — 每个缺失姿态一条 prompt
   无缺口时不生成此文件
 
 后续:
@@ -23,6 +23,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "helpers"))
+
+from prompt_builder import build_pose_reference_prompt
 
 
 AERIAL_KEYWORDS = {"fly", "air", "hover", "aerial", "dash", "glide", "float"}
@@ -39,7 +41,7 @@ def _classify_group(anim_id):
 
 def main():
     ap = argparse.ArgumentParser(description="检测姿态缺口 + 构建姿态提示词")
-    ap.add_argument("char_dir", help="角色目录(含 _meta.json)")
+    ap.add_argument("char_dir", help="{work_dir}/{精灵名}(含 _meta.json)")
     ap.add_argument("anims", help="_user_anims.json 路径")
     ap.add_argument("--ready-pose", choices=["ground", "aerial"], default=None,
                     help="ready.png 当前姿态(不传则默认 ground)")
@@ -86,13 +88,7 @@ def main():
     # 构建提示词
     results = []
     for gap in gaps:
-        prompt = (
-            f"Redraw this exact same character {gap['prompt_hint']}.\n"
-            f"Keep the exact same art style, rendering and shading as the input image.\n"
-            f"Preserve all colors, clothing, accessories, hairstyle, and proportions exactly.\n"
-            f"Character faces right, mouth closed, neutral expression.\n"
-            f"Pure solid {key_color_name} background, no shadow, no ground line."
-        )
+        prompt = build_pose_reference_prompt(gap["prompt_hint"], key_color_name)
         results.append({
             "pose": gap["pose"],
             "filename": gap["filename"],

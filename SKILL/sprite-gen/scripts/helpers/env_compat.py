@@ -1,27 +1,30 @@
 """环境兼容模块:工作区定位 + ASCII 临时目录 + 环境设置。"""
 import os
 import shutil
+import sys
 import tempfile
 
 
 def ensure_utf8():
     os.environ.setdefault("PYTHONUTF8", "1")
+    for target in (sys.stdout, sys.stderr):
+        if hasattr(target, "reconfigure"):
+            target.reconfigure(encoding="utf-8", errors="replace")
 
 
 def find_workspace_root():
     """定位工作区根目录。
 
     策略:
-    1. TapMaker 容器:上层目录是 /home/Maker → 直接用 /workspace
-    2. 非 TapMaker:往上找含 .claude / .maker / .codex 的目录
+    1. is_cloud() 为真时:云端环境,工作区是 /workspace
+    2. 其他环境:从调用时 cwd 往父级找含 .claude / .maker / .codex / .git 的目录
     3. 都找不到:返回 cwd
     """
-    # TapMaker 容器检测
-    if os.path.isdir("/home/Maker"):
+    cwd = os.getcwd()
+    d = os.path.abspath(cwd)
+    if is_cloud():
         return "/workspace"
 
-    # 非 TapMaker:往上找标记目录
-    d = os.path.dirname(os.path.abspath(__file__))
     markers = (".claude", ".maker", ".codex", ".git")
     for _ in range(10):
         if any(os.path.isdir(os.path.join(d, m)) for m in markers):
@@ -30,7 +33,14 @@ def find_workspace_root():
         if parent == d:
             break
         d = parent
-    return os.getcwd()
+    return cwd
+
+
+def _is_under(path, root):
+    try:
+        return os.path.commonpath([os.path.abspath(path), os.path.abspath(root)]) == os.path.abspath(root)
+    except ValueError:
+        return False
 
 
 def resolve_output_dir(config_output_dir):
@@ -59,8 +69,22 @@ def copy_back(src, dst):
 
 
 def is_cloud():
-    """是否在 TapMaker 云端容器中运行。"""
-    return os.path.isdir("/home/Maker")
+    """是否在 TapMaker 云端容器中运行。
+
+    当前判定标准(后续可能调整,云端判定逻辑只此一处,改这里即可):
+    系统根存在 /home/Maker、/workspace,以及云端容器特有的 /home/Maker/.sce
+    (本地几乎不会有,除非刻意模拟,故是很强的区分信号),且本脚本(__file__)所在
+    路径的父级链路落在 /home/Maker 或 /workspace 下。用 __file__ 而非 cwd:cwd 可能被
+    chdir 改掉导致误判,skill 的部署位置在一次运行内稳定。
+    """
+    here = os.path.abspath(__file__)
+    return (
+        os.name != "nt" and
+        os.path.isdir("/home/Maker") and
+        os.path.isdir("/workspace") and
+        os.path.isdir("/home/Maker/.sce") and
+        (_is_under(here, "/home/Maker") or _is_under(here, "/workspace"))
+    )
 
 
 import base64 as _b64

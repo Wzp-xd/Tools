@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tapmaker.local/sprite-gen/spritesheet.schema.json",
+  "title": "sprite-gen 图集 JSON",
+  "description": "sprite-gen 生成的 TexturePacker/Pixi 风格 JSON,用于描述图集帧、动画帧序列和关联的分页/子表 JSON。",
+  "type": "object",
+  "required": [
+    "meta"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "frames": {
+      "type": "object",
+      "description": "帧表。key 是全局唯一帧名,value 是该帧在图集 PNG 中的位置、裁剪信息、sourceSize 和时长。",
+      "additionalProperties": {
+        "$ref": "#/$defs/frameEntry"
+      }
+    },
+    "animations": {
+      "type": "array",
+      "description": "动画定义数组。数组顺序有意义,第一个动画可作为调用方未指定动画时的缺省动画。",
+      "items": {
+        "$ref": "#/$defs/animation"
+      }
+    },
+    "meta": {
+      "description": "图集或入口 JSON 的元信息,包括图片文件、图集尺寸、sourceSize 策略、通用 pivot 和关联 JSON。",
+      "$ref": "#/$defs/meta"
+    }
+  },
+  "$defs": {
+    "rect": {
+      "type": "object",
+      "description": "矩形区域,x/y 为左上角,w/h 为尺寸,单位为像素。",
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "x": {
+          "type": "integer"
+        },
+        "y": {
+          "type": "integer"
+        },
+        "w": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "h": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "size": {
+      "type": "object",
+      "description": "二维尺寸,单位为像素。",
+      "required": [
+        "w",
+        "h"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "w": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "h": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "frameEntry": {
+      "type": "object",
+      "description": "单帧 TexturePacker 风格数据。",
+      "required": [
+        "frame",
+        "rotated",
+        "trimmed",
+        "spriteSourceSize",
+        "sourceSize"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "frame": {
+          "description": "该帧在当前图集 PNG 中的矩形区域。",
+          "$ref": "#/$defs/rect"
+        },
+        "rotated": {
+          "type": "boolean",
+          "description": "是否旋转打包。sprite-gen 当前固定为 false。"
+        },
+        "trimmed": {
+          "type": "boolean",
+          "description": "是否裁掉透明边距。sprite-gen 输出为 tight crop,通常为 true。"
+        },
+        "spriteSourceSize": {
+          "description": "tight crop 后的帧在 sourceSize 画布中的位置和尺寸。",
+          "$ref": "#/$defs/rect"
+        },
+        "sourceSize": {
+          "description": "播放/对齐时使用的原始逻辑画布尺寸。",
+          "$ref": "#/$defs/size"
+        },
+        "duration": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "该帧播放时长,单位毫秒。K 帧模式可能逐帧不同。"
+        }
+      }
+    },
+    "pivot": {
+      "type": "object",
+      "description": "支点。用于 absolute 布局或游戏演出中的对齐。",
+      "required": [
+        "space",
+        "unit",
+        "origin",
+        "x",
+        "y"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "space": {
+          "const": "sourceSize",
+          "description": "支点坐标所在空间。sprite-gen 固定为 sourceSize。"
+        },
+        "unit": {
+          "const": "normalized",
+          "description": "坐标单位。normalized 表示 0..1 归一化。"
+        },
+        "origin": {
+          "const": "top_left",
+          "description": "坐标原点。top_left 表示 sourceSize 左上角。"
+        },
+        "x": {
+          "type": "number",
+          "description": "归一化 x 坐标。"
+        },
+        "y": {
+          "type": "number",
+          "description": "归一化 y 坐标。"
+        }
+      }
+    },
+    "animation": {
+      "type": "object",
+      "description": "一个动画的播放定义。",
+      "required": [
+        "name",
+        "frames"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "动画名,用于播放/查找。"
+        },
+        "frames": {
+          "type": "array",
+          "description": "有序帧 key 数组。每个 key 应能在合并后的 frames 表中查到。",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "direction": {
+          "enum": [
+            "forward",
+            "reverse",
+            "pingpong"
+          ],
+          "description": "播放方向。缺省按 forward 处理。"
+        },
+        "repeat": {
+          "type": "integer",
+          "description": "循环次数。<=0 表示无限循环,N>=1 表示播放 N 次。"
+        },
+        "fps": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "该动画的统一帧率提示。实际逐帧时长优先看 frame.duration。"
+        },
+        "pivot": {
+          "description": "该动画专用支点。缺省回退 meta.pivot。",
+          "$ref": "#/$defs/pivot"
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "description": "图集或入口 JSON 的元信息。",
+      "additionalProperties": true,
+      "properties": {
+        "app": {
+          "const": "sprite-gen",
+          "description": "生成器标识。"
+        },
+        "version": {
+          "type": "string",
+          "description": "格式/生成器版本。"
+        },
+        "image": {
+          "type": "string",
+          "description": "当前 JSON 对应的图集 PNG 文件名。"
+        },
+        "format": {
+          "type": "string",
+          "description": "图集像素格式描述。"
+        },
+        "size": {
+          "description": "当前图集 PNG 尺寸。",
+          "$ref": "#/$defs/size"
+        },
+        "scale": {
+          "type": "string",
+          "description": "贴图缩放倍率字符串。"
+        },
+        "source_size_mode": {
+          "enum": [
+            "canvas",
+            "bbox-per-anim"
+          ],
+          "description": "sourceSize 计算策略,与生成配置 source_size_mode 对应。"
+        },
+        "pivot": {
+          "description": "通用支点。animation.pivot 缺省时回退到这里。",
+          "$ref": "#/$defs/pivot"
+        },
+        "relatedMultiPacks": {
+          "type": "array",
+          "description": "关联的其他 sheet JSON 文件列表,用于分页或多入口引用。",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

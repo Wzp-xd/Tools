@@ -1,0 +1,1 @@
+unwanted loop, repeated cycles after the main action, endless pulsing

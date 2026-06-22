@@ -1,0 +1,5 @@
+3D rotation, perspective change, camera movement, angle change,
+blur, distort, low quality, compression artifacts,
+shadow, drop shadow, ground shadow, cast shadow,
+background gradient, background texture, extra unrelated objects,
+cropped subject, off-center subject, changing canvas position

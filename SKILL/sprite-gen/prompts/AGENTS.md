@@ -14,30 +14,46 @@
 | `loop.txt` | 循环动画视频 prompt | `{动作描述}` `{KEY_COLOR}` |
 | `once.txt` | 单次动画视频 prompt | `{动作描述}` `{KEY_COLOR}` |
 | `attack.txt` | 攻击动画视频 prompt | `{动作描述}` `{KEY_COLOR}` |
-| `side_view.txt` | 转侧视 edit_image prompt | `{ART_STYLE}` `{KEY_COLOR}` |
+| `sequence_loop.txt` | 非角色循环序列 prompt | `{动作描述}` `{用户提示词}` `{KEY_COLOR}` |
+| `sequence_once.txt` | 非角色单次序列 prompt | `{动作描述}` `{用户提示词}` `{KEY_COLOR}` |
+| `side_view.txt` | 转侧视 edit_image prompt | `{VIEW_ANGLE}` `{ART_STYLE}` `{KEY_COLOR}` |
+| `cutout_transparent.txt` | 非透明素材透明抠图 prompt | `{ART_STYLE}` |
+| `pose_reference.txt` | character 姿态补图 prompt | `{POSE_HINT}` `{ART_STYLE}` `{KEY_COLOR}` |
 | `negative_base.txt` | 基础 negative(所有动画) | 无 |
 | `negative_once.txt` | 单次追加 negative | 无 |
 | `negative_attack.txt` | 攻击追加 negative | 无 |
+| `negative_sequence_base.txt` | 非角色序列基础 negative | 无 |
+| `negative_sequence_once.txt` | 非角色单次序列追加 negative | 无 |
 
 ## 占位符说明
 
 | 占位符 | 来源 | 缺省 | 示例 |
 |--------|------|------|------|
-| `{动作描述}` | Agent 按 `refs/02-动画Prompt生成.md` 的规则写(1-2句,不描述外观) | 无缺省,必填 | `walks forward with exaggerated bouncy steps, body bobbing` |
+| `{动作描述}` | Agent 按 `refs/action_guide.md` 的规则写(1-2句,不描述外观) | 无缺省,必填 | `walks forward with exaggerated bouncy steps, body bobbing` |
 | `{KEY_COLOR}` | `pick_key_color.py` 的输出(颜色英文名) | 无缺省,必填 | `magenta` |
 | `{ART_STYLE}` | 用户指定的风格(如 "anime cel-shading") | 未指定→自动填 "Keep the exact same art style, rendering and shading as the input image" | `pixel art` |
+| `{用户提示词}` | `_user_anims.json` 条目里的 `user_prompt` | 未指定→自动填 "No additional user requirements." | `keep the flash compact and centered` |
+| `{VIEW_ANGLE}` | `build_side_view_prompt()` 按视角选项填入 | 无缺省,由脚本选择 | `strict side-view profile facing right` |
+| `{POSE_HINT}` | `build_pose_reference_prompt()` 按缺口类型填入 | 无缺省,由脚本选择 | `flying or hovering in mid-air, wings spread` |
 
 ## 使用方式
 
 ```python
-from helpers.prompt_builder import build_prompt, build_side_view_prompt
+from helpers.prompt_builder import build_prompt, build_sequence_prompt, build_side_view_prompt, build_cutout_prompt, build_pose_reference_prompt
 
 # 视频生成
 prompt, neg = build_prompt(anim_id, play_type, action_desc, key_color_name)
+prompt, neg = build_sequence_prompt(anim_id, play_type, action_desc, key_color_name, user_prompt=None)
 
 # 转侧视
 sv_prompt = build_side_view_prompt(key_color_name, art_style=None)  # None→保持原图风格
 sv_prompt = build_side_view_prompt(key_color_name, art_style="anime cel-shading")  # 用户指定
+
+# 透明抠图
+cutout_prompt = build_cutout_prompt(art_style=None)
+
+# 姿态补图
+pose_prompt = build_pose_reference_prompt("flying or hovering in mid-air", key_color_name)
 ```
 
 `prompt_builder.py` 从 .txt 读模板 + 替换占位符。**Agent 绝不要绕过它直接拼字符串。**

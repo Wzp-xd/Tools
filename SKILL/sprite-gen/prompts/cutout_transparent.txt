@@ -1,0 +1,5 @@
+Extract the foreground visual asset from the input image.
+{ART_STYLE}.
+Preserve the asset shape, colors, texture, proportions, and details exactly.
+Remove the entire background and output the asset on a transparent alpha background.
+Do not add a new background, shadow, border, frame, ground line, reflection, or extra decoration.

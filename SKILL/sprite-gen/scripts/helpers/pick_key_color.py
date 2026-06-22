@@ -19,6 +19,10 @@ import sys
 import numpy as np
 from PIL import Image
 
+from env_compat import ensure_utf8
+
+ensure_utf8()
+
 
 # 候选幕布色:覆盖色相环 + 高饱和。chroma key 实践偏好高饱和纯色,边缘 despill 才干净。
 CANDIDATES = {
@@ -61,11 +65,11 @@ def _character_pixels(img, bg_tol=12):
 def pick_key_color(image_path, effect_colors=None, candidates=None):
     """
     返回 (recommended_rgb_tuple, info_dict)。
-    info: {'recommended','margin','ranking':[(name,rgb,min_dist),...]}
-    margin = 推荐色到角色/特效色的最小距离(越大越安全,经验上 >120 较稳)。
+    info: {'recommended','key_color_min_distance','ranking':[(name,rgb,min_dist),...]}
+    key_color_min_distance = 推荐色到角色/特效色的最小距离(越大越安全,经验上 >120 较稳)。
     """
-    img = Image.open(image_path)
-    chars = _character_pixels(img).astype(np.float32)
+    with Image.open(image_path) as img:
+        chars = _character_pixels(img).astype(np.float32)
     palette = chars
     if effect_colors:
         ec = np.array(effect_colors, dtype=np.float32)
@@ -82,7 +86,7 @@ def pick_key_color(image_path, effect_colors=None, candidates=None):
     info = {
         "recommended": best_rgb,
         "recommended_name": best_name,
-        "margin": round(best_d, 1),
+        "key_color_min_distance": round(best_d, 1),
         "ranking": [{"name": n, "rgb": list(c), "min_dist": round(d, 1)} for n, c, d in ranking],
     }
     return best_rgb, info
@@ -104,12 +108,12 @@ def main():
     if args.json:
         print(json.dumps(info, ensure_ascii=False, indent=2))
     else:
-        print(f"推荐幕布色: {info['recommended_name']} {rgb}  (安全裕度={info['margin']})")
+        print(f"推荐幕布色: {info['recommended_name']} {rgb}  (安全距离={info['key_color_min_distance']})")
         print("排名(到角色最近距离,越大越安全):")
         for r in info["ranking"]:
             print(f"  {r['name']:11} {tuple(r['rgb'])}  {r['min_dist']}")
-        if info["margin"] < 100:
-            print("⚠️ 裕度偏低(<100):角色颜色覆盖很广,边缘 despill 需更小心,"
+        if info["key_color_min_distance"] < 100:
+            print("⚠️ 安全距离偏低(<100):角色颜色覆盖很广,边缘 despill 需更小心,"
                   "或考虑生成时让角色避开该色域。")
 
 

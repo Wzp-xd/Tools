@@ -1,0 +1,7 @@
+Non-character sequence animation, start from a clear still frame, then {动作描述},
+then settle or fade to a clean final state for the rest of the time.
+Brief single burst of motion with readable timing.
+2D game sprite sequence, clean readable silhouette, stable scale, stable position,
+no character-facing requirement, no side-view requirement.
+{用户提示词}
+Static camera, subject centered, pure {KEY_COLOR} background.

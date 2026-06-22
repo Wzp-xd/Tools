@@ -43,9 +43,9 @@ def estimate_complexity(magnitudes, directions):
     Classify animation complexity based on motion statistics.
 
     Returns (level, suggested_min, suggested_max):
-      "simple"  → 6-8   (idle, breathe)
-      "medium"  → 10-14 (run, walk)
-      "complex" → 14-20 (attack, multi-hit combo)
+      "simple"  → 8-12  (idle, breathe)
+      "medium"  → 12-18 (run, walk)
+      "complex" → 18-24 (attack, multi-hit combo)
     """
     if len(magnitudes) < 3:
         return "simple", 4, 6
@@ -62,11 +62,11 @@ def estimate_complexity(magnitudes, directions):
     dir_change_rate = dir_changes / len(directions)
 
     if cv < 0.4 and dir_change_rate < 0.15:
-        return "simple", 6, 8
+        return "simple", 8, 12
     elif cv > 0.8 or dir_change_rate > 0.35:
-        return "complex", 14, 20
+        return "complex", 18, 24
     else:
-        return "medium", 10, 14
+        return "medium", 12, 18
 
 
 # ── Pose extrema detection ────────────────────────────────────────
@@ -143,13 +143,13 @@ def extract_keyframes(frame_paths, target_min=None, target_max=None):
     """
     grays = []
     for p in frame_paths:
-        img = cv2.imread(p, cv2.IMREAD_UNCHANGED)
-        if img is None:
+        try:
+            img = np.asarray(Image.open(p).convert("RGBA"))
+        except Exception:
             continue
-        if len(img.shape) == 3 and img.shape[2] == 4:
-            gray = cv2.cvtColor(img[:, :, :3], cv2.COLOR_BGR2GRAY)
-        else:
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if len(img.shape) == 3 else img
+        rgb = img[:, :, :3].copy()
+        rgb[img[:, :, 3] == 0] = 0
+        gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
         grays.append(gray)
 
     N = len(grays)
@@ -234,7 +234,29 @@ def extract_keyframes(frame_paths, target_min=None, target_max=None):
 
 # ── File operations ───────────────────────────────────────────────
 
-def create_key_version(source_dir, key_dir, keyframe_result, source_fps=24):
+def compute_frame_durations(indices, total_frames, source_fps=24, play_type="loop"):
+    """Compute per-keyframe display durations in milliseconds."""
+    if not indices or total_frames <= 0:
+        return []
+
+    source_fps = float(source_fps or 24)
+    if source_fps <= 0:
+        source_fps = 24
+    frame_ms = 1000 / source_fps
+    durations = []
+    for i, idx in enumerate(indices):
+        if i + 1 < len(indices):
+            span = indices[i + 1] - idx
+        elif play_type == "loop":
+            span = total_frames - idx + indices[0]
+        else:
+            span = total_frames - idx
+        durations.append(max(1, int(round(max(1, span) * frame_ms))))
+    return durations
+
+
+def create_key_version(source_dir, key_dir, keyframe_result, source_fps=24, play_type="loop",
+                       write_preview=True):
     """
     Create _key version by copying selected keyframes and generating GIF/preview.
 
@@ -243,15 +265,21 @@ def create_key_version(source_dir, key_dir, keyframe_result, source_fps=24):
         key_dir: output directory for _key version
         keyframe_result: dict from extract_keyframes()
         source_fps: original animation fps
+        play_type: "loop" wraps the last keyframe to the first; "once" holds to the end
+        write_preview: write helper GIF/PNG previews when used as a standalone tool
     """
     os.makedirs(key_dir, exist_ok=True)
 
     source_frames = sorted(glob.glob(os.path.join(source_dir, "frame_*.png")))
     indices = keyframe_result["indices"]
+    if not indices:
+        print("Warning: no keyframes selected")
+        return None
 
-    total_duration_ms = len(source_frames) * (1000 / source_fps)
-    key_frame_duration_ms = int(total_duration_ms / len(indices))
-    key_fps = 1000 / key_frame_duration_ms if key_frame_duration_ms > 0 else 12
+    frame_durations_ms = compute_frame_durations(indices, len(source_frames), source_fps, play_type)
+    total_duration_ms = sum(frame_durations_ms)
+    avg_frame_duration_ms = int(round(total_duration_ms / len(indices)))
+    key_fps = 1000 / avg_frame_duration_ms if avg_frame_duration_ms > 0 else 12
 
     copied_frames = []
     for new_idx, src_idx in enumerate(indices):
@@ -259,7 +287,7 @@ def create_key_version(source_dir, key_dir, keyframe_result, source_fps=24):
             continue
         src_path = source_frames[src_idx]
         dst_path = os.path.join(key_dir, f"frame_{new_idx + 1:04d}.png")
-        img = Image.open(src_path)
+        img = Image.open(src_path).convert("RGBA")
         img.save(dst_path, "PNG")
         copied_frames.append(img)
         print(f"  frame_{new_idx + 1:04d}.png ← source frame_{src_idx + 1:04d}.png")
@@ -268,18 +296,20 @@ def create_key_version(source_dir, key_dir, keyframe_result, source_fps=24):
         print("Warning: no frames copied")
         return
 
-    # Generate GIF (same total duration as full version)
-    gif_path = os.path.join(key_dir, "preview.gif")
     frames_rgba = [f.convert("RGBA") for f in copied_frames]
-    frames_rgba[0].save(
-        gif_path,
-        save_all=True,
-        append_images=frames_rgba[1:],
-        duration=key_frame_duration_ms,
-        loop=0,
-        disposal=2,
-    )
-    print(f"  preview.gif ({len(indices)} frames, {key_frame_duration_ms}ms/frame ≈ {key_fps:.0f}fps)")
+    if write_preview:
+        # Generate GIF (same total duration as full version).
+        # User-facing WebP preview is owned by video_to_sprites.py.
+        gif_path = os.path.join(key_dir, "preview.gif")
+        frames_rgba[0].save(
+            gif_path,
+            save_all=True,
+            append_images=frames_rgba[1:],
+            duration=frame_durations_ms,
+            loop=0,
+            disposal=2,
+        )
+        print(f"  preview.gif ({len(indices)} frames, avg {avg_frame_duration_ms}ms/frame ≈ {key_fps:.0f}fps)")
 
     # Generate preview.png strip
     thumb_size = 120
@@ -304,10 +334,14 @@ def create_key_version(source_dir, key_dir, keyframe_result, source_fps=24):
         "source_anim": os.path.basename(source_dir),
         "source_total_frames": len(source_frames),
         "source_fps": source_fps,
+        "play_type": play_type,
         "keyframe_indices": indices,
         "keyframe_count": len(indices),
+        "frame_durations_ms": frame_durations_ms,
+        "duration_total_ms": total_duration_ms,
         "target_fps": round(key_fps, 1),
-        "frame_duration_ms": key_frame_duration_ms,
+        "frame_duration_ms": avg_frame_duration_ms,
+        "compression_ratio": round(len(indices) / len(source_frames), 4) if source_frames else 1,
         "complexity": keyframe_result["complexity"],
         "target_range": keyframe_result["target_range"],
         "extrema_count": keyframe_result["extrema_count"],
@@ -331,6 +365,7 @@ def main():
     parser.add_argument("--output-dir", default=None,
                         help="Output directory for _key version (default: {frames_dir}_key)")
     parser.add_argument("--fps", type=int, default=24, help="Source animation FPS")
+    parser.add_argument("--play-type", default="loop", choices=["loop", "once"])
     args = parser.parse_args()
 
     frame_paths = sorted(glob.glob(os.path.join(args.frames_dir, "frame_*.png")))
@@ -351,7 +386,8 @@ def main():
 
     key_dir = args.output_dir or args.frames_dir + "_key"
     print(f"\nCreating key version → {key_dir}")
-    create_key_version(args.frames_dir, key_dir, result, source_fps=args.fps)
+    create_key_version(args.frames_dir, key_dir, result,
+                       source_fps=args.fps, play_type=args.play_type)
     print("\nDone!")
 
 
